@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterboard/Post.dart';
+import 'package:file_picker/file_picker.dart'
+
 
 void main() {
   runApp(MyApp());
@@ -17,6 +19,16 @@ class MyApp extends StatelessWidget {
 class BoardScreen extends StatefulWidget {
   @override
   _BoardScreenState createState() => _BoardScreenState();
+
+  String? _selectedFilePath;
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      setState(() {
+        _selectedFilePath = result.files.single.path;
+      });
+    }
+  }
 }
 
 class _BoardScreenState extends State<BoardScreen> {
@@ -56,9 +68,35 @@ class _BoardScreenState extends State<BoardScreen> {
     setState(() {
       _titleController.text = _posts[index].title;
       _contentController.text = _posts[index].content;
-      _editIndex = index; // 수정할 인덱스를 저장한다.
+      _editIndex = index;
 
     });
+  }
+
+  void _showReadDialog(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(content),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('닫기'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+    );
   }
 
 
@@ -102,6 +140,7 @@ class _BoardScreenState extends State<BoardScreen> {
                   onPressed: () => _deletePost(index),
                 ),
                 onTap: () => _editPost(index),
+                onLongPress: () => _showReadDialog(_posts[index].title, _posts[index].content),
               );
             },
           ),

@@ -1,11 +1,11 @@
 
 class Post {
 
-  String title;
-  String content;
+  final String title;
+  final String content;
+  final String filePath;
 
-
-  Post({required this.title, required this.content});
+  Post({required this.title, required this.content, required this.filePath});
 
 
 }
