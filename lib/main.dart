@@ -23,6 +23,7 @@ class _BoardScreenState extends State<BoardScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final List<Post> _posts = [];
+  int? _editIndex;
 
   void _addPost() {
     final String title = _titleController.text;
@@ -30,9 +31,17 @@ class _BoardScreenState extends State<BoardScreen> {
 
     if(title.isNotEmpty && content.isNotEmpty ) {
       setState(() {
-        _posts.add(Post(title: title, content: content));
+
+        if(_editIndex == null) {
+          _posts.add(Post(title: title, content: content));
+        }else {
+          _posts[_editIndex!] = Post(title: title, content: content);
+          _editIndex = null;
+        }
         _titleController.clear();
         _contentController.clear();
+
+
       });
     }
   }
@@ -42,6 +51,19 @@ class _BoardScreenState extends State<BoardScreen> {
       _posts.removeAt(index);
     });
   }
+
+  void _editPost(int index) {
+    setState(() {
+      _titleController.text = _posts[index].title;
+      _contentController.text = _posts[index].content;
+      _editIndex = index; // 수정할 인덱스를 저장한다.
+
+    });
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +87,10 @@ class _BoardScreenState extends State<BoardScreen> {
               decoration: InputDecoration(labelText: "내용"),
             ),
           ),
-          ElevatedButton(onPressed: _addPost, child: Text("게시글 추가")),
+          ElevatedButton(
+              onPressed: _addPost,
+              child: Text(_editIndex == null ? "게시글 추가" : "수정 완료"),
+          ),
           Expanded(child: ListView.builder(
               itemCount: _posts.length,
             itemBuilder: (context, index) {
@@ -76,6 +101,7 @@ class _BoardScreenState extends State<BoardScreen> {
                   icon: Icon(Icons.delete),
                   onPressed: () => _deletePost(index),
                 ),
+                onTap: () => _editPost(index),
               );
             },
           ),
